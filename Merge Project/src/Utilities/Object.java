@@ -12,12 +12,14 @@ public class Object {
     public double imageSpeed = 1;
     public int imageIndex = 0;
     public int depth = 0;
+    public long previousUpdate;
     public final String KEY;
 
-    public Object(Point position, String spriteIndex, String Key) {
+    public Object(Point position, String spriteIndex, String Key, long currentFrame) {
         this.position = position;
         this.spriteIndex = spriteIndex;
         this.KEY = Key;
+        this.previousUpdate = currentFrame;
     }
 
 }

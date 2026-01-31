@@ -1,35 +1,35 @@
 import javax.swing.JFrame;
 
 import java.awt.Color;
-import java.awt.Dimension;
 
 public class App {
     public static void main(String[] args) throws Exception {
         //Not a lot to explain here
         JFrame frame = new JFrame("Merge Project");
+        double frameStart = System.nanoTime();
+        int frameRate = 120;
+        double frameLength = 1000000000/(double)frameRate;
+        long frameCounter = 0;
 
-        frame.setPreferredSize(new Dimension(1280, 720));
-        frame.setFocusable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(Color.BLACK);
-        frame.setResizable(false);
 
-        Game game = new Game();
+        Game game = new Game(frameRate);
 
         frame.add(game);
+
+        frame.setResizable(false);
 
         frame.pack();
         frame.setVisible(true);
 
-        game.create();
-
-        double frameStart = System.nanoTime();
-        double frameLength = 1000000000/120;
+        game.create(frameCounter);
 
         while (true) {
             while (frameStart + frameLength < System.nanoTime()) {
-                game.run();
+                game.run(frameCounter);
                 frameStart += frameLength;
+                frameCounter ++;
             }
         }
     }
