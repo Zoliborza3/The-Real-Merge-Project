@@ -1,0 +1,1 @@
+[[White-Part]]-[[Red-Part]]-[[Green-Part]]
