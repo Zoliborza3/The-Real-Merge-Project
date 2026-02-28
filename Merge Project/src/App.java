@@ -1,5 +1,7 @@
 import javax.swing.JFrame;
 
+import Utilities.Game;
+
 import java.awt.Color;
 
 public class App {

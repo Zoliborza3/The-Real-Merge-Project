@@ -1,8 +1,8 @@
+package Utilities;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,8 +13,6 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
 
-import Utilities.*;
-import Utilities.Object;
 import Utilities.Collision.*;
 
 import javax.imageio.ImageIO;
@@ -42,6 +40,8 @@ public class Game extends JPanel {
     //The inputs of the previous frame
     static KeyHandler impulseHandler = new KeyHandler();
 
+    Object player;
+
     public Game(int frameRate) {
         setPreferredSize(new Dimension(64*windowScale, 36*windowScale));
         setFocusable(true);
@@ -62,16 +62,17 @@ public class Game extends JPanel {
         //updates the sprite states of every object
         for (int i = 0; i < instance.size(); i ++) {
             Object thisInstance = instance.get(instance.keySet().toArray()[i]);
-            Sprite thisSprite = sprite.get(thisInstance.spriteIndex);
-            System.out.println(instance.keySet().toArray());
+            Sprite thisSprite = sprite.get(thisInstance.getSpriteIndex());
+            if (thisSprite != null) {
 
-            long numberOfFrames = (long)(thisSprite.imageTime*thisInstance.imageSpeed*((double)frameRate));
+                long numberOfFrames = (long)(thisSprite.imageTime*thisInstance.imageSpeed*((double)frameRate));
 
-            if (numberOfFrames > 0) {
-                while (currentFrame >= thisInstance.previousUpdate+numberOfFrames) {
-                    thisInstance.imageIndex ++;
-                    if (thisInstance.imageIndex >= thisSprite.size()) thisInstance.imageIndex = 0;
-                    thisInstance.previousUpdate += numberOfFrames;
+                if (numberOfFrames > 0) {
+                    while (currentFrame >= thisInstance.previousUpdate+numberOfFrames) {
+                        thisInstance.imageIndex ++;
+                        if (thisInstance.imageIndex >= thisSprite.size()) thisInstance.imageIndex = 0;
+                        thisInstance.previousUpdate += numberOfFrames;
+                    }
                 }
             }
         }
@@ -83,14 +84,31 @@ public class Game extends JPanel {
         impulseHandler = inputHandler.copy();
     }
 
-    //this is where the real game stuff should go; feel free to break it up more if you all prefer to 
+    //this is where the real game stuff should go; feel free to break it up more if you all prefer to; I would advise against writing extensive amounts of codes here, rather both of you should make Entities for that
     public void step(long currentFrame) {
         
+        if (inputHandler.key(KeyEvent.VK_RIGHT)) {
+            player.position.x += 5;
+        }
+        if (inputHandler.key(KeyEvent.VK_LEFT)) {
+            player.position.x -= 5;
+        }
+        if (inputHandler.key(KeyEvent.VK_DOWN)) {
+            player.position.y += 5;
+        }
+        if (inputHandler.key(KeyEvent.VK_UP)) {
+            player.position.y -= 5;
+        }        
 
+        System.out.println(player.collides(instance));
+
+        for (Object object : instance.values()) {
+            System.out.println(player.getMask() );
+        }
 
     }
 
-    //this is where you can call extra draw functions and it will all render on top of the game (it's better not to touch the real paintComponent)
+    //this is where you can call extra draw functions and it will all render on top of the game (it's better not to touch the real paintComponent); meant mainly for GUI as it draws on top of everything
     public void draw(Graphics g) {
 
 
@@ -100,11 +118,33 @@ public class Game extends JPanel {
     //runs once on the first frame
     public void create(long currentFrame) {
 
-        try {resource("resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
+        try {resource("Merge Project\\resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
 
         String key = generateIdentifier();
-        instance.put(key, new Object(new Point(0, 0), "sprTest", key, currentFrame));
+        instance.put(key, new Object(new Point(0, 0), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+
+        player = instance.get(key);
+
+        key = generateIdentifier();
+        instance.put(key, new Object(new Point(1000, 1000), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+
+        instance.get(key).imageYScale = 10;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void paintComponent(Graphics g) {
 
@@ -126,9 +166,9 @@ public class Game extends JPanel {
         for (int i = 0; i < instance.size(); i ++) {
 
             Object ins = instance.get(instanceKeyset[i]);
-            if (ins != null && ins.visible && sprite.containsKey(ins.spriteIndex)) {
+            if (ins != null && ins.visible && sprite.containsKey(ins.getSpriteIndex())) {
 
-                Sprite spr = sprite.get(ins.spriteIndex);
+                Sprite spr = sprite.get(ins.getSpriteIndex());
                 Image img = spr.getImage(ins.imageIndex);
                 double realWidth = img.getWidth(null) * ins.imageXScale * downScale;
                 double realHeight = img.getHeight(null) * ins.imageYScale * downScale;
@@ -154,7 +194,7 @@ public class Game extends JPanel {
                         ||
                         (realTopBound <= camera.topBound() && camera.bottomBound() >= realBottomBound)
                     )
-                ) {depthOrder[instance.get(instanceKeyset[i]).depth+99].add(instanceKeyset[i]);}
+                ) {depthOrder[instance.get(instanceKeyset[i]).getDepth()+99].add(instanceKeyset[i]);}
 
             }
         }
@@ -169,7 +209,7 @@ public class Game extends JPanel {
                 for (int j = 0; j < depthLevel.size(); j ++) {
                     //calls the image we are about to draw
                     Object currentInstance = instance.get(depthLevel.get(j));
-                    Sprite currentSprite = sprite.get(currentInstance.spriteIndex);
+                    Sprite currentSprite = sprite.get(currentInstance.getSpriteIndex());
                     Image imageToDraw = currentSprite.getImage(currentInstance.imageIndex);
 
                     Integer scaledWidth = (int)(Math.round(imageToDraw.getWidth(null) * currentInstance.imageXScale * downScale));
@@ -270,7 +310,7 @@ public class Game extends JPanel {
                             points[i] = new Point(Integer.parseInt(segments[0]), Integer.parseInt(segments[1]));
                         }
 
-                        if (points.length == 1) {mask = new Circle(Point.distance(points[0].x, points[0].y, 0, 0));}
+                        if (points.length == 1) {mask = new Circle(points[0].distanceTo(new Point(0, 0)));}
                         else {mask = new Polygon(points);}
 
                         if (file.hasNextLine()) {span = file.nextDouble();}
@@ -299,6 +339,17 @@ public class Game extends JPanel {
             System.err.println("Undefined problem while trying to read assets: "+e);
         }
 
+    }
+
+    //calls the innate logic of entities
+    public void act() {
+        for (String key : instance.keySet()) {
+            Object object = instance.get(key);
+
+            if (object.entity != null) {
+                object.entity.act(this);
+            }
+        }
     }
 
 }

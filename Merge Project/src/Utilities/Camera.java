@@ -1,7 +1,5 @@
 package Utilities;
 
-import java.awt.Point;
-
 public class Camera {
     public Point position;
     public double width;

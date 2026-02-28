@@ -1,13 +1,12 @@
 package Utilities;
 
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import Utilities.Collision.Collision;
 
 public class Sprite {
     private BufferedImage image[];
-    Collision collision;
+    final Collision collision;
     public Point origin;
     public double imageTime = 1;
 
@@ -33,6 +32,10 @@ public class Sprite {
 
     public int size() {
         return image.length;
+    }
+
+    public Collision getMask() {
+        return this.collision.copy();
     }
 
 }
