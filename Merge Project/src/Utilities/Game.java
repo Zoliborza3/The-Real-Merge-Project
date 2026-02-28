@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.RenderingHints.Key;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -19,7 +20,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class Game extends JPanel {
-    int windowScale = 20;
+    //use this variable to set the size of window
+    int windowScale = 10;
     public int frameRate;
 
     //contains all the instances in the game
@@ -86,25 +88,16 @@ public class Game extends JPanel {
 
     //this is where the real game stuff should go; feel free to break it up more if you all prefer to; I would advise against writing extensive amounts of codes here, rather both of you should make Entities for that
     public void step(long currentFrame) {
-        
-        if (inputHandler.key(KeyEvent.VK_RIGHT)) {
-            player.position.x += 5;
-        }
-        if (inputHandler.key(KeyEvent.VK_LEFT)) {
-            player.position.x -= 5;
-        }
-        if (inputHandler.key(KeyEvent.VK_DOWN)) {
-            player.position.y += 5;
-        }
-        if (inputHandler.key(KeyEvent.VK_UP)) {
-            player.position.y -= 5;
-        }        
 
-        System.out.println(player.collides(instance));
+        act();
 
-        for (Object object : instance.values()) {
-            System.out.println(player.getMask() );
-        }
+        //example code for checking inputs
+        //press
+        if (inputHandler.key(KeyEvent.VK_SPACE) && !impulseHandler.key(KeyEvent.VK_SPACE)) {System.out.println("press");}
+        //hold
+        if (inputHandler.key(KeyEvent.VK_SPACE)) {System.out.println("hold");}
+        //release
+        if (!inputHandler.key(KeyEvent.VK_SPACE) && impulseHandler.key(KeyEvent.VK_SPACE)) {System.out.println("release");}
 
     }
 
@@ -120,15 +113,11 @@ public class Game extends JPanel {
 
         try {resource("Merge Project\\resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
 
+        //example code for creating an Instance
         String key = generateIdentifier();
-        instance.put(key, new Object(new Point(0, 0), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+        instance.put(key, new Object(new Point(100, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
 
         player = instance.get(key);
-
-        key = generateIdentifier();
-        instance.put(key, new Object(new Point(1000, 1000), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
-
-        instance.get(key).imageYScale = 10;
     }
 
 
@@ -202,58 +191,25 @@ public class Game extends JPanel {
         g.setColor(Color.WHITE);
 
         //draws every instance or every collision box
-        if (!inputHandler.key(KeyEvent.VK_F1)) {
-            for (int i = 198; i >= 0; i --) {
-                LinkedList<String> depthLevel = depthOrder[i];
+        for (int i = 198; i >= 0; i --) {
+            LinkedList<String> depthLevel = depthOrder[i];
 
-                for (int j = 0; j < depthLevel.size(); j ++) {
-                    //calls the image we are about to draw
-                    Object currentInstance = instance.get(depthLevel.get(j));
-                    Sprite currentSprite = sprite.get(currentInstance.getSpriteIndex());
-                    Image imageToDraw = currentSprite.getImage(currentInstance.imageIndex);
+            for (int j = 0; j < depthLevel.size(); j ++) {
+                //calls the image we are about to draw
+                Object currentInstance = instance.get(depthLevel.get(j));
+                Sprite currentSprite = sprite.get(currentInstance.getSpriteIndex());
+                Image imageToDraw = currentSprite.getImage(currentInstance.imageIndex);
 
-                    Integer scaledWidth = (int)(Math.round(imageToDraw.getWidth(null) * currentInstance.imageXScale * downScale));
-                    Integer scaledHeight = (int)(Math.round(imageToDraw.getHeight(null) * currentInstance.imageYScale * downScale));
-                    Point realOrigin = new Point((int)(currentSprite.origin.x * currentInstance.imageXScale * downScale), (int)(currentSprite.origin.y * currentInstance.imageYScale * downScale));
+                Integer scaledWidth = (int)(Math.round(imageToDraw.getWidth(null) * currentInstance.imageXScale * downScale));
+                Integer scaledHeight = (int)(Math.round(imageToDraw.getHeight(null) * currentInstance.imageYScale * downScale));
+                Point realOrigin = new Point((int)(currentSprite.origin.x * currentInstance.imageXScale * downScale), (int)(currentSprite.origin.y * currentInstance.imageYScale * downScale));
 
-                    if (scaledHeight != 0 && scaledWidth != 0) {
-                        imageToDraw = imageToDraw.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_FAST);
-                        g.drawImage(imageToDraw, (int)Math.round((currentInstance.position.x - camera.position.x) * downScale - realOrigin.x), (int)Math.round((currentInstance.position.y - camera.position.y) * downScale - realOrigin.y), imageToDraw.getWidth(null), imageToDraw.getHeight(null), null);
-                    }
-
+                if (scaledHeight != 0 && scaledWidth != 0) {
+                    imageToDraw = imageToDraw.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_FAST);
+                    g.drawImage(imageToDraw, (int)Math.round((currentInstance.position.x - camera.position.x) * downScale - realOrigin.x), (int)Math.round((currentInstance.position.y - camera.position.y) * downScale - realOrigin.y), imageToDraw.getWidth(null), imageToDraw.getHeight(null), null);
                 }
+
             }
-        }
-        else {
-            /*
-            g.setColor(Color.RED);
-            for (int i = 198; i >= 0; i --) {
-                LinkedList<String> depthLevel = depthOrder[i];
-
-                for (int j = 0; j < depthLevel.size(); j ++) {
-                    Object currentInstance = instance.get(depthLevel.get(j));
-                    Collision current = currentInstance.mask();
-
-                    Point[] currentMask = current.points;
-
-                    int xPoints[] = new int[currentMask.length];
-                    int yPoints[] = new int[currentMask.length];
-
-                    Point newPoints[] = new Point[currentMask.length];
-
-                    for (int x = 0; x < currentMask.length; x ++) {
-                        Point point = currentMask[x];
-
-                        xPoints[x] = (int)Math.round((currentInstance.position.x + point.x - camera.position.x) * downScale);
-                        yPoints[x] = (int)Math.round((currentInstance.position.y + point.y - camera.position.y) * downScale);
-                        newPoints[x] = new Point(xPoints[x], yPoints[x]);
-                    }
-
-                    g.fillPolygon(xPoints, yPoints, currentMask.length);
-
-                }
-            }
-            */
         }
 
         draw(g);
