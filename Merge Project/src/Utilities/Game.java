@@ -15,13 +15,15 @@ import java.util.Random;
 import java.util.Scanner;
 
 import Utilities.Collision.*;
+import Utilities.Inventory.Element;
+import Utilities.Inventory.Inventory;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class Game extends JPanel {
     //use this variable to set the size of window
-    int windowScale = 10;
+    static int windowScale = 10;
     public int frameRate;
 
     //contains all the instances in the game
@@ -43,6 +45,11 @@ public class Game extends JPanel {
     static KeyHandler impulseHandler = new KeyHandler();
 
     Object player;
+
+    Inventory inventory = new Inventory(10);
+    boolean eWasPressed = false;
+    boolean qWasPressed = false;
+    boolean iWasPressed = false;
 
     public Game(int frameRate) {
         setPreferredSize(new Dimension(64*windowScale, 36*windowScale));
@@ -90,6 +97,17 @@ public class Game extends JPanel {
     public void step(long currentFrame) {
 
         act();
+        Element e = new Element(1,1);
+        Element e2 = new Element(2,1);
+        boolean eCurrentlyPressed = inputHandler.key(KeyEvent.VK_E);
+        boolean qCurrentlyPressed = inputHandler.key(KeyEvent.VK_Q);
+        boolean iCurrentlyPressed = inputHandler.key(KeyEvent.VK_I);
+        if (iCurrentlyPressed && !iWasPressed) {Inventory.printInventory(Inventory.inverntory);}
+        if (eCurrentlyPressed && !eWasPressed) {Inventory.addElement(e, Inventory.inverntory, inventory.size);}
+        if (qCurrentlyPressed && !qWasPressed) {Inventory.addElement(e2, Inventory.inverntory, inventory.size);}
+        eWasPressed = eCurrentlyPressed;
+        qWasPressed = qCurrentlyPressed;
+        iWasPressed = iCurrentlyPressed;
 
         //example code for checking inputs
         //press
@@ -306,6 +324,9 @@ public class Game extends JPanel {
                 object.entity.act(this);
             }
         }
+    }
+    public static int getWindowScale(){
+        return windowScale;
     }
 
 }

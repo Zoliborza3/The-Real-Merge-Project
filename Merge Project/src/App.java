@@ -1,8 +1,10 @@
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import Utilities.Game;
+import Utilities.Inventory.Inventory;
+import Utilities.Inventory.InventoryPanel;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -15,10 +17,14 @@ public class App {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(Color.BLACK);
+        frame.setLayout(new BorderLayout());
 
         Game game = new Game(frameRate);
+        InventoryPanel inventoryPanel = new InventoryPanel(Inventory.inverntory);
 
-        frame.add(game);
+
+        frame.add(game, BorderLayout.CENTER);
+        frame.add(inventoryPanel, BorderLayout.EAST);
 
         frame.setResizable(false);
 
@@ -30,6 +36,7 @@ public class App {
         while (true) {
             while (frameStart + frameLength < System.nanoTime()) {
                 game.run(frameCounter);
+                inventoryPanel.repaint();
                 frameStart += frameLength;
                 frameCounter ++;
             }
