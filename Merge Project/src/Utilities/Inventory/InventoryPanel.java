@@ -1,41 +1,41 @@
 package Utilities.Inventory;
 
+import Utilities.Entity;
 import Utilities.Game;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
 
-public class InventoryPanel extends JPanel {
-    LinkedList<Element> inventory;
+public class InventoryPanel extends Entity {
 
-    public InventoryPanel(LinkedList<Element> inventory) {
-        this.inventory = inventory;
-        setPreferredSize(new Dimension(8 * Game.getWindowScale(), 36 * Game.getWindowScale()));
-        setBackground(Color.orange);
+    public Inventory inventory;
+    private Color backgroundColor;
+    private Dimension preferredSize;
+
+    public InventoryPanel() {
+        this.inventory = new Inventory(1000);
+        preferredSize = new Dimension(8 * Game.getWindowScale(), 36 * Game.getWindowScale());
+        backgroundColor = Color.orange;
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    public void act(Game game) {
+
+
+
+    }
+
+    public void draw(Game game, Graphics g) {
+        g.setColor(backgroundColor);
+        g.fillRect((int)(game.getWidth()*0.8), 0, game.getWidth(), game.getHeight());
+
         if (!inventory.isEmpty()) {
 
-            int itemSlotAmount = inventory.size();
-            int itemSlotHeight = getHeight() / 10;
-            int width = getWidth();
+            g.setColor(Color.WHITE);
 
-            g.setColor(Color.BLACK);
-
-            for (int i = 0; i < itemSlotAmount; i++) {
-
-                int y = i * itemSlotHeight;
-
-                g.drawRect(0, y, width, itemSlotHeight);
-
-                if (i < inventory.size()) {
-                    Element e = inventory.get(i);
-                    g.drawString(e.id + " - " + e.amount, inventory.size(), y + itemSlotHeight / 2);
-                }
+            for (double i = 0; i < inventory.elements.size() && i < 10; i++) {
+                Element e = inventory.elements.get((int)i);
+                g.drawString(e.id + " - " + e.amount, (int)(game.getWidth()*0.8), (int)(10+game.getHeight()*(i/10)));
             }
         }
     }

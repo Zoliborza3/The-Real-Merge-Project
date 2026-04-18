@@ -17,14 +17,16 @@ import java.util.Scanner;
 import Utilities.Collision.*;
 import Utilities.Inventory.Element;
 import Utilities.Inventory.Inventory;
+import Utilities.Inventory.InventoryPanel;
+import Utilities.Inventory.Item;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class Game extends JPanel {
     //use this variable to set the size of window
-    static int windowScale = 10;
-    public int frameRate;
+    static int windowScale = 20;
+    public double frameRate;
 
     //contains all the instances in the game
     HashMap<String, Object> instance = new HashMap<>();
@@ -46,12 +48,9 @@ public class Game extends JPanel {
 
     Object player;
 
-    Inventory inventory = new Inventory(10);
-    boolean eWasPressed = false;
-    boolean qWasPressed = false;
-    boolean iWasPressed = false;
+    InventoryPanel inventoryPanel = new InventoryPanel();
 
-    public Game(int frameRate) {
+    public Game(double frameRate) {
         setPreferredSize(new Dimension(64*windowScale, 36*windowScale));
         setFocusable(true);
         addKeyListener(inputHandler);
@@ -97,17 +96,13 @@ public class Game extends JPanel {
     public void step(long currentFrame) {
 
         act();
+
+
         Element e = new Element(1,1);
         Element e2 = new Element(2,1);
-        boolean eCurrentlyPressed = inputHandler.key(KeyEvent.VK_E);
-        boolean qCurrentlyPressed = inputHandler.key(KeyEvent.VK_Q);
-        boolean iCurrentlyPressed = inputHandler.key(KeyEvent.VK_I);
-        if (iCurrentlyPressed && !iWasPressed) {Inventory.printInventory(Inventory.inverntory);}
-        if (eCurrentlyPressed && !eWasPressed) {Inventory.addElement(e, Inventory.inverntory, inventory.size);}
-        if (qCurrentlyPressed && !qWasPressed) {Inventory.addElement(e2, Inventory.inverntory, inventory.size);}
-        eWasPressed = eCurrentlyPressed;
-        qWasPressed = qCurrentlyPressed;
-        iWasPressed = iCurrentlyPressed;
+        if (inputHandler.key(KeyEvent.VK_I) && !impulseHandler.key(KeyEvent.VK_I)) {System.out.println(inventoryPanel.inventory.toString());}
+        if (inputHandler.key(KeyEvent.VK_E) && !impulseHandler.key(KeyEvent.VK_E)) {inventoryPanel.inventory.addElement(e);}
+        if (inputHandler.key(KeyEvent.VK_Q) && !impulseHandler.key(KeyEvent.VK_Q)) {inventoryPanel.inventory.addElement(e2);}
 
         //example code for checking inputs
         //press
@@ -122,14 +117,14 @@ public class Game extends JPanel {
     //this is where you can call extra draw functions and it will all render on top of the game (it's better not to touch the real paintComponent); meant mainly for GUI as it draws on top of everything
     public void draw(Graphics g) {
 
-
+        inventoryPanel.draw(this, g);
 
     }
 
     //runs once on the first frame
     public void create(long currentFrame) {
 
-        try {resource("Merge Project\\resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
+        try {resource("resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
 
         //example code for creating an Instance
         String key = generateIdentifier();
@@ -137,19 +132,6 @@ public class Game extends JPanel {
 
         player = instance.get(key);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

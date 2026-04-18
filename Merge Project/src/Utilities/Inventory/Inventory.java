@@ -3,49 +3,50 @@ package Utilities.Inventory;
 import java.util.LinkedList;
 
 public class Inventory {
-    public static LinkedList<Element> inverntory =new LinkedList<>();
+    public LinkedList<Element> elements =new LinkedList<>();
     public int size;
 
-    public Inventory(int y) {
-        size = y;
+    public Inventory(int size) {
+        this.size = size;
     }
-    public static int getNumberOfElements(LinkedList<Element> inverntory){
+    public int getNumberOfElements(){
         int elementAmount=0;
-        for (Element i:inverntory){
+        for (Element i:elements){
             elementAmount++;
         }
         return elementAmount;
     }
-    public static double getElementAmount(LinkedList<Element> inverntory){
+    public double getElementAmount(){
         double itemAmount=0;
-        for (Element i:inverntory) {
+        for (Element i:elements) {
             itemAmount+=i.amount;
         }
         return itemAmount;
     }
-    public static void addElement(Element addedElement,LinkedList<Element> inverntory,int size){
-        if (getElementAmount(inverntory)+1>size){
-            System.out.println("Cant add element because inventory is full");
-        }
-        else {
+    public void addElement(Element addedElement){
+        if (getElementAmount()+1<=size) {
             boolean found=false;
-            for (Element i : inverntory) {
+            for (Element i : elements) {
                 if (i.id == addedElement.id) {
                     i.amount += addedElement.amount;
-                    System.out.println(addedElement.id + " Element amount increased");
                     found=true;
                     break;
                 }
             }
             if (!found){
-                    inverntory.add(addedElement);
-                    System.out.println(addedElement.id + " Element added");
+                    elements.add(addedElement);
             }
         }
     }
-    public static void printInventory(LinkedList<Element> inverntory){
-        for (Element i:inverntory){
-            System.out.println(i.id+"-"+i.amount);
-        }
+    public String toString(){
+        String toReturn = "";
+
+        toReturn += "elements : "+elements.toString()+", size : "+size;
+
+        return toReturn;
+    }
+
+    public boolean isEmpty() {
+        return elements.isEmpty();
     }
 }

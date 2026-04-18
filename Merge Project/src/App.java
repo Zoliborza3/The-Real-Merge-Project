@@ -11,20 +11,16 @@ public class App {
         //Not a lot to explain here
         JFrame frame = new JFrame("Merge Project");
         double frameStart = System.nanoTime();
-        int frameRate = 120;
-        double frameLength = 1000000000/(double)frameRate;
+        double frameRate = 120;
+        double frameLength = 1000000000/frameRate;
         long frameCounter = 0;
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(Color.BLACK);
-        frame.setLayout(new BorderLayout());
 
         Game game = new Game(frameRate);
-        InventoryPanel inventoryPanel = new InventoryPanel(Inventory.inverntory);
 
-
-        frame.add(game, BorderLayout.CENTER);
-        frame.add(inventoryPanel, BorderLayout.EAST);
+        frame.add(game);
 
         frame.setResizable(false);
 
@@ -36,7 +32,6 @@ public class App {
         while (true) {
             while (frameStart + frameLength < System.nanoTime()) {
                 game.run(frameCounter);
-                inventoryPanel.repaint();
                 frameStart += frameLength;
                 frameCounter ++;
             }

@@ -2,7 +2,7 @@ package Utilities.Inventory;
 
 public class Element {
     int id;
-    Double amount;
+    double amount;
 
     public Element(int id, double amount) {
         this.id = id;

@@ -40,8 +40,9 @@ public class Polygon extends Collision {
     }
 
     public boolean collidesAt(Point thisOrigin, Collision other, Point otherOrigin) {
+        System.out.println("a");
         if (other instanceof Polygon) {
-
+            
             // Check if circle center is inside polygon
             Polygon otherPolygonMask = (Polygon)other;
             Point otherPoints[] = otherPolygonMask.getPoints();

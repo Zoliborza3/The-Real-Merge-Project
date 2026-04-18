@@ -101,12 +101,12 @@ public class Object {
     }
 
     public boolean solidCollidesWithAt(Point thisPosition, Object other, Point otherPosition) {
-        if (!this.solid || !other.solid) return false;
+        if (!other.solid) return false;
         return collidesWithAt(thisPosition, other, otherPosition);
     }
 
     public boolean solidCollidesAt(Point thisPosition, Map<String, Object> others) {
-        if (this.mask == null || !this.solid) return false;
+        if (this.mask == null) return false;
         Collision trueMask = getMask();
         for (Object other : others.values()) {
             if (other != this) {
@@ -123,7 +123,7 @@ public class Object {
     }
 
     public LinkedList<Object> solidCollidesAtList(Point thisPosition, Map<String, Object> others) {
-        if (this.mask == null || !this.solid) return new LinkedList<>();
+        if (this.getMask() == null) return new LinkedList<>();
         Collision trueMask = getMask();
         LinkedList<Object> objects = new LinkedList<>();
         for (Object other : others.values()) {
