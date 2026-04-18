@@ -31,7 +31,7 @@ public class App {
 
         while (true) {
             while (frameStart + frameLength < System.nanoTime()) {
-                game.run(frameCounter);
+                game.run(frameCounter, frame.getX(), frame.getY());
                 frameStart += frameLength;
                 frameCounter ++;
             }

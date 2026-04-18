@@ -1,10 +1,14 @@
 package Utilities;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.MouseInfo;
 import java.awt.RenderingHints.Key;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,6 +50,12 @@ public class Game extends JPanel {
     //The inputs of the previous frame
     static KeyHandler impulseHandler = new KeyHandler();
 
+    //The state of the Mouse on the current frame
+    static MouseHandler inputMouse = new MouseHandler();
+
+    //The state of the Mouse on the previous frame
+    static MouseHandler impulseMouse = new MouseHandler();
+
     Object player;
 
     InventoryPanel inventoryPanel = new InventoryPanel();
@@ -54,18 +64,23 @@ public class Game extends JPanel {
         setPreferredSize(new Dimension(64*windowScale, 36*windowScale));
         setFocusable(true);
         addKeyListener(inputHandler);
+        addMouseListener(inputMouse);
 
         this.frameRate = frameRate;
     }
 
-    public void run(long currentFrame) {
+    public void run(long currentFrame, int windowX, int windowY) {
+        //updates mouse position
+        inputMouse.x = MouseInfo.getPointerInfo().getLocation().x-windowX;
+        inputMouse.y =  MouseInfo.getPointerInfo().getLocation().y-windowY;
 
         //updates the list of the taken identifier keys
         for (String string : instance.keySet()) {
             if (!expandedKeys.contains(string)) expandedKeys.add(string);
         }
 
-        
+        //This is how you check if a mouse button is held down
+        System.out.println(inputMouse.key(MouseEvent.BUTTON1));
 
         //updates the sprite states of every object
         for (int i = 0; i < instance.size(); i ++) {
@@ -90,6 +105,7 @@ public class Game extends JPanel {
         repaint();
 
         impulseHandler = inputHandler.copy();
+        impulseMouse = inputMouse.copy();
     }
 
     //this is where the real game stuff should go; feel free to break it up more if you all prefer to; I would advise against writing extensive amounts of codes here, rather both of you should make Entities for that
