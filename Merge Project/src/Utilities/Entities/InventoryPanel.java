@@ -22,7 +22,9 @@ public class InventoryPanel extends Entity {
 
     public void act(Game game) {
 
-
+        if (!Game.sprite.containsKey("sprInventoryPanel")) {
+            
+        }
 
     }
 

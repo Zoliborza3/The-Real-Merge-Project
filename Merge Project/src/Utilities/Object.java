@@ -61,12 +61,24 @@ public class Object {
         this.mask = mask;
     }
 
-    public int getDepth() {return this.depth;}
+    public int getRelativeDepth() {return this.depth;}
 
-    public void setDepth(int depth) {
-        if (depth < -99) {this.depth = -99;}
-        else if (depth > 99) {this.depth = 99;}
-        else {this.depth = depth;}
+    public int getAbsoluteDepth() {
+        if (sourceKey == null) return this.depth;
+        return Game.instance.get(sourceKey).getAbsoluteDepth()+this.depth;
+    }
+
+    public void setRelativeDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public void setAbsoluteDepth(int depth) {
+        if (sourceKey == null) {
+            this.depth = depth;
+            return;
+        }
+        int currentDepth = Game.instance.get(sourceKey).getAbsoluteDepth();
+        this.depth = this.depth-currentDepth;
     }
 
     public Collision getMask() {
@@ -76,7 +88,7 @@ public class Object {
     public boolean collidesWithAt(Point thisPosition, Object other, Point otherPosition) {
         Collision otherMask = other.getMask();
         
-        if (this.mask == null || otherMask == null) return false;
+        if (this.mask == null || otherMask == null || this.layer != other.layer) return false;
         return getMask().collidesAt(thisPosition, otherMask, otherPosition);
     }
 
@@ -84,7 +96,7 @@ public class Object {
         if (this.mask == null) return false;
         Collision trueMask = getMask();
         for (Object other : others.values()) {
-            if (other != this) {
+            if (other != this && other.layer == this.layer) {
                 Collision otherMask = other.getMask();
             
                 if (otherMask != null && trueMask.collidesAt(thisPosition, otherMask, other.position)) return true;
@@ -102,7 +114,7 @@ public class Object {
         Collision trueMask = getMask();
         LinkedList<Object> objects = new LinkedList<>();
         for (Object other : others.values()) {
-            if (other != this) {
+            if (other != this && other.layer == this.layer) {
                 Collision otherMask = other.getMask();
 
                 if (otherMask != null && trueMask.collidesAt(thisPosition, otherMask, other.position)) objects.add(other);
@@ -124,7 +136,7 @@ public class Object {
         if (this.mask == null) return false;
         Collision trueMask = getMask();
         for (Object other : others.values()) {
-            if (other != this) {
+            if (other != this && other.layer == this.layer) {
                 Collision otherMask = other.getMask();
 
                 if (otherMask != null && other.solid && trueMask.collidesAt(thisPosition, otherMask, other.position)) return true;
@@ -142,7 +154,7 @@ public class Object {
         Collision trueMask = getMask();
         LinkedList<Object> objects = new LinkedList<>();
         for (Object other : others.values()) {
-            if (other != this) {
+            if (other != this && other.layer == this.layer) {
                 Collision otherMask = other.getMask();
 
                 if (otherMask != null && other.solid && trueMask.collidesAt(thisPosition, otherMask, other.position)) objects.add(other);

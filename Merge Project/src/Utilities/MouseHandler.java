@@ -12,9 +12,8 @@ public class MouseHandler implements MouseListener {
 
     //onscreen is the mouse's position relative to the upperleft corner of the game window; ingame is the ingame coordinates of where the mouse falls
     Point onScreen = new Point(0, 0), inGame = new Point(0, 0);
-    //list of keys of the objects that the mouse is hovered over sorted by depth level
-    LinkedList<String> objectKeys[] = new LinkedList[199];
-    //list of keys of the hud elements that the mouse is hovered over
+    //list of keys of the objects that the mouse is hovered over sorted by layer and depth
+    HashMap<Integer, HashMap<Integer, LinkedList<String>>> hoverOver = new HashMap<>();
 
     //Collision box of the mousePointer
     Dot mask = new Dot();

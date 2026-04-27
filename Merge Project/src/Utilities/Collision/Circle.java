@@ -20,6 +20,7 @@ public class Circle extends Collision {
     }
 
     public boolean collidesAt(Point thisOrigin, Collision other, Point otherOrigin) {
+        if (thisOrigin == null || other == null || otherOrigin == null) return false;
         if (other instanceof Circle && thisOrigin.distanceTo(otherOrigin) < this.radius+((Circle)(other)).radius) {return true;}
         else if (other instanceof Polygon) {
             // Check if circle center is inside polygon

@@ -81,15 +81,27 @@ public class Game extends JPanel {
         else {inputMouse.inGame.y = (int)(camera.position.y + inputMouse.onScreen.y)*scale;}
 
         //updates the inputMouse's hover over lists
-        inputMouse.objectKeys = new LinkedList[199];
-        for (int i = 0; i < inputMouse.objectKeys.length; i ++) {
-            inputMouse.objectKeys[i] = new LinkedList<String>();
-        }
+        inputMouse.hoverOver = new HashMap<Integer, HashMap<Integer, LinkedList<String>>>();
         for (String key : instance.keySet()) {
             Object object = instance.get(key);
 
             if (inputMouse.mask.collidesAt(inputMouse.inGame, object.getMask(), object.getAbsolutePosition())) {
-                inputMouse.objectKeys[object.getDepth()].add(key);
+                
+                if (inputMouse.hoverOver.containsKey(object.layer)) {
+                    if (inputMouse.hoverOver.get(object.layer).containsKey(object.getAbsoluteDepth())) {
+                        inputMouse.hoverOver.get(object.layer).get(object.getAbsoluteDepth()).add(key);
+                    }
+                    else {
+                        inputMouse.hoverOver.get(object.layer).put(object.getAbsoluteDepth(), new LinkedList<String>());
+                        inputMouse.hoverOver.get(object.layer).get(object.getAbsoluteDepth()).add(key);
+                    }
+                }
+                else {
+                    inputMouse.hoverOver.put(object.layer, new HashMap<Integer, LinkedList<String>>());
+                    inputMouse.hoverOver.get(object.layer).put(object.getAbsoluteDepth(), new LinkedList<String>());
+                    inputMouse.hoverOver.get(object.layer).get(object.getAbsoluteDepth()).add(key);
+                }
+
             }
         }
 
@@ -152,12 +164,15 @@ public class Game extends JPanel {
         try {resource("resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
 
         //example code for creating an instance, attaching an entity and parenting another instance
+        //this how you create an instance
         String key = generateIdentifier();
         instance.put(key, new Object(Object.BASE, new Point(100, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
         
+        //this how you can save to a variable and add an entity to them
         player = instance.get(key);
         player.entity = new Player();
 
+        //this how you make another instance and add it to the collection of the first one
         key = generateIdentifier();
         instance.put(key, new Object(Object.HUD, new Point(200, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
         player.addToCollection(key);
@@ -214,12 +229,12 @@ public class Game extends JPanel {
                 ) {
 
                     if (layerOrder.containsKey(ins.layer)) {
-                        layerOrder.get(ins.layer).get(ins.getDepth()).add(instanceKeyset[i]);
+                        layerOrder.get(ins.layer).get(ins.getAbsoluteDepth()).add(instanceKeyset[i]);
                     }
                     else {
                         layerOrder.put(ins.layer, new HashMap<Integer, LinkedList<String>>());
-                        layerOrder.get(ins.layer).put(ins.getDepth(), new LinkedList<String>());
-                        layerOrder.get(ins.layer).get(ins.getDepth()).add(instanceKeyset[i]);
+                        layerOrder.get(ins.layer).put(ins.getAbsoluteDepth(), new LinkedList<String>());
+                        layerOrder.get(ins.layer).get(ins.getAbsoluteDepth()).add(instanceKeyset[i]);
                     }
 
                 }

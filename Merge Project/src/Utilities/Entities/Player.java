@@ -16,7 +16,7 @@ public class Player extends Entity {
         if (Game.inputHandler.key(KeyEvent.VK_DOWN)) {move.y ++;}
         move = move.thisVectorWithLength(3);
 
-        object.setRelativePosition(null);
+        if (move.length() > 0) object.setRelativePosition(object.getRelativePosition().applyVector(move));
 
     }
 
