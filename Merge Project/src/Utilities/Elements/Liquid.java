@@ -1,8 +1,6 @@
-package Utilities.Inventory;
+package Utilities.Elements;
 
 public class Liquid extends Element{
-    int id;
-    double amount;
 
     public Liquid(int id, double amount) {
         super(id, amount);

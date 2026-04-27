@@ -1,15 +1,25 @@
 package Utilities;
 
+
 import java.util.LinkedList;
 import java.util.Map;
 
 import Utilities.Collision.Collision;
+import Utilities.Entities.Entity;
 
 public class Object {
-    public Point position;
-    public boolean visible = true;
-    //Solid objects cannot be passed into and also have their own detection filter
-    public boolean solid = false;
+
+    //!!IMPORTANT!! sets what layer it is rendered to; Objects can only collide normally with objects on the same layer;
+    public int layer;
+    //some pre-defined layer ids
+    public static final int BASE = 0, HUD = -1;
+
+    //Ingame position of the Object; relative value
+    private Point position;
+    //whether or not the Object is attempted to be rendered; negative-relative value
+    private boolean visible = true;
+    //Solid objects cannot be passed into and also have their own detection filter; positive-relative value
+    private boolean solid = false;
     //The key of this object sprite (not a private datatag, but setting it to an incorrect or not existant spriteKey will crash the game)
     private String spriteIndex;
     //Note: If you resize an object that has a circle collision mask it will not distort, instead it will scale to the bigger image scale
@@ -19,7 +29,7 @@ public class Object {
     public double imageSpeed = 1;
     //Which ever frame of the sprite the object is on (it isn't a private datatag, but setting it manually to an incorrect value will crash the game)
     int imageIndex = 0;
-    //depth determines what objects are rendered in front of what object, only supports values beetwen -99 and 99 at it WILL crash the game if you set one outside of this range
+    //depth determines what objects are rendered in front of what object inside a layer; relative value
     private int depth = 0;
     //remembers which frame the cycler cycled this object
     public long previousUpdate;
@@ -28,9 +38,14 @@ public class Object {
     //copy of the sprite's mask, has to be updated everytime the spriteKey is; you can set it to something else then the sprite's mask, no point in it tho
     private Collision mask;
     public Entity entity;
+    //Being a collection is like being the origin point of your own layer; Every Object that is part of this Object's collection has relative attributes to it; Being of the same collection also normally exclude things from collision detection of each other;
+    private LinkedList<String> collection = new LinkedList<>();
+    //The key of the Object that this Object is the part of as a collection; accepts null
+    private String sourceKey = null;
 
-    public Object(Point position, String spriteIndex, Collision mask, String Key, long currentFrame) {
-        this.position = position;
+    public Object(int layer, Point relativePosition, String spriteIndex, Collision mask, String Key, long currentFrame) {
+        this.layer = layer;
+        this.position = relativePosition;
         this.spriteIndex = spriteIndex;
         this.mask = mask;
         this.KEY = Key;
@@ -140,4 +155,113 @@ public class Object {
         return solidCollidesAtList(this.position, others);
     }
 
+    public void setRelativePosition(Point position) {
+        this.position = position;
+    }
+
+    public void setAbsolutePosition(Point position) {
+        if (sourceKey == null) {
+            this.setRelativePosition(position);
+            return;
+        }
+        Point currentPosition = Game.instance.get(sourceKey).getAbsolutePosition();
+        this.setRelativePosition(new Point(position.x-currentPosition.x, position.y-currentPosition.y));
+    }
+
+    public Point getRelativePosition() {
+        return position;
+    }
+    
+    public Point getAbsolutePosition() {
+        if (sourceKey == null) return position;
+        return Game.instance.get(sourceKey).getAbsolutePosition().applyVector(new Vector(this.position.x, this.position.y));
+    }
+
+    public boolean getAbsoluteVisibility() {
+        if (sourceKey == null) return visible;
+        String key = sourceKey;
+        while (key != null) {
+            Object ancestor = Game.instance.get(key);
+            if (!ancestor.visible) return false;
+            key = ancestor.sourceKey;
+        }
+        return visible;
+    }
+
+    public boolean getRelativeVisibility() {
+        return visible;
+    }
+
+    public boolean getAbsoluteSolidity() {
+        if (sourceKey == null) return solid;
+        String key = sourceKey;
+        while (key != null) {
+            Object ancestor = Game.instance.get(key);
+            if (ancestor.solid) return true;
+            key = ancestor.sourceKey;
+        }
+        return solid;
+    }
+
+    public boolean getRelativeSolidity() {
+        return solid;
+    }
+
+    public void setRelativeVisibility(boolean visible) {
+        this.visible = visible;
+    }
+
+    public void setRelativeSolidity(boolean visible) {
+        this.visible = visible;
+    }
+
+    public void setAbsoluteVisibility(boolean visible) {
+        this.visible = visible;
+        String key = sourceKey;
+        while (key != null) {
+            Object ancestor = Game.instance.get(key);
+            ancestor.setRelativeVisibility(visible);
+            key = ancestor.sourceKey;
+        }
+    }
+
+    public void setAbsoluteSolidity(boolean solid) {
+        this.solid = solid;
+        String key = sourceKey;
+        while (key != null) {
+            Object ancestor = Game.instance.get(key);
+            ancestor.solid = solid;
+            key = ancestor.sourceKey;
+        }
+    }
+
+    public boolean containsKey(String searchKey) {
+        if (collection.contains(searchKey)) return true;
+        String key = Game.instance.get(searchKey).sourceKey;
+        while (key != null) {
+            Object ancestor = Game.instance.get(key);
+            if (ancestor.KEY.equals(KEY)) return true;
+            if (ancestor.sourceKey == null) return false;
+            key = ancestor.sourceKey;
+        }
+        return false;
+    }
+
+    public void setSource(String sourceKey) {
+        if (this.KEY.equals(sourceKey) || this.containsKey(sourceKey) || Game.instance.get(sourceKey).containsKey(KEY)) throw new IllegalArgumentException("An Object's ancestor cannot be itself or one of it's collectives nor can it be it's current ancestor's ancestor and so on");
+        this.sourceKey = sourceKey;
+        Game.instance.get(sourceKey).collection.add(KEY);
+    }
+
+    public void addToCollection(String Key) {
+        if (collection.contains(Key) || this.KEY.equals(sourceKey) || this.containsKey(Key) || Game.instance.get(Key).containsKey(KEY)) throw new IllegalArgumentException("An Object cannot be it's own collective, nor can it's ancestor be it's collective, nor can one of it's already existing collective");
+        this.collection.add(Key);
+        Game.instance.get(Key).sourceKey = KEY;
+    }
+
+    public void removeFromCollection(String Key) {
+        if (!collection.contains(Key)) throw new IllegalArgumentException("The provided Key does not belong to an Object that is part of this objects immideate collection");
+        collection.remove(Key);
+        Game.instance.get(Key).sourceKey = null;
+    }
 }

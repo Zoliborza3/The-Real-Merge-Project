@@ -1,8 +1,6 @@
-package Utilities.Inventory;
+package Utilities.Elements;
 
 public class Item extends Element {
-    int id;
-    int amount;
 
     public Item(int id, double amount) {
         super(id, amount);

@@ -1,7 +1,8 @@
-package Utilities.Inventory;
+package Utilities.Entities;
 
-import Utilities.Entity;
 import Utilities.Game;
+import Utilities.Inventory;
+import Utilities.Elements.Element;
 
 import javax.swing.*;
 import java.awt.*;

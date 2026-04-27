@@ -1,14 +1,10 @@
 package Utilities;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MouseInfo;
-import java.awt.RenderingHints.Key;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,44 +15,46 @@ import java.util.Random;
 import java.util.Scanner;
 
 import Utilities.Collision.*;
-import Utilities.Inventory.Element;
-import Utilities.Inventory.Inventory;
-import Utilities.Inventory.InventoryPanel;
-import Utilities.Inventory.Item;
+import Utilities.Elements.Element;
+import Utilities.Entities.InventoryPanel;
+import Utilities.Entities.Player;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class Game extends JPanel {
+
+    //defines the base layers
+
     //use this variable to set the size of window
     static int windowScale = 20;
     public double frameRate;
 
     //contains all the instances in the game
-    HashMap<String, Object> instance = new HashMap<>();
+    public static HashMap<String, Object> instance = new HashMap<>();
 
     //contains all the used up ids
-    LinkedList<String> expandedKeys = new LinkedList<>();
+    public static LinkedList<String> expandedKeys = new LinkedList<>();
 
     //contains all the loaded sprites
-    HashMap<String, Sprite> sprite = new HashMap<>();
+    public static HashMap<String, Sprite> sprite = new HashMap<>();
 
     //Just the camera object
-    Camera camera = new Camera(new Point(0, 0), 2560, 1440, "");
+    public static Camera camera = new Camera(new Point(0, 0), 2560, 1440, "");
 
     //The inputs on the current frame
-    static KeyHandler inputHandler = new KeyHandler();
+    public static KeyHandler inputHandler = new KeyHandler();
 
     //The inputs of the previous frame
-    static KeyHandler impulseHandler = new KeyHandler();
+    public static KeyHandler impulseHandler = new KeyHandler();
 
     //The state of the Mouse on the current frame
-    static MouseHandler inputMouse = new MouseHandler();
+    public static MouseHandler inputMouse = new MouseHandler();
 
     //The state of the Mouse on the previous frame
-    static MouseHandler impulseMouse = new MouseHandler();
+    public static MouseHandler impulseMouse = new MouseHandler();
 
-    Object player;
+    public Object player;
 
     InventoryPanel inventoryPanel = new InventoryPanel();
 
@@ -69,32 +67,50 @@ public class Game extends JPanel {
         this.frameRate = frameRate;
     }
 
-    public void run(long currentFrame, int windowX, int windowY) {
+    public void run(long currentFrame, int windowX, int windowY, boolean borderless) {
         //updates mouse position
-        inputMouse.x = MouseInfo.getPointerInfo().getLocation().x-windowX;
-        inputMouse.y =  MouseInfo.getPointerInfo().getLocation().y-windowY;
+        double scale = 40/windowScale;
+        inputMouse.onScreen.x = (int)(MouseInfo.getPointerInfo().getLocation().x-windowX)-8;
+        if (borderless) {inputMouse.onScreen.y =  (int)(MouseInfo.getPointerInfo().getLocation().y-windowY);}
+        else {inputMouse.onScreen.y =  (int)(MouseInfo.getPointerInfo().getLocation().y-windowY)-32;}
+        if (inputMouse.onScreen.x < 0) {inputMouse.inGame.x = Double.NEGATIVE_INFINITY;}
+        else if (inputMouse.onScreen.x > getWidth()*scale) {inputMouse.inGame.x = Double.POSITIVE_INFINITY;}
+        else {inputMouse.inGame.x = (int)(camera.position.x + inputMouse.onScreen.x)*scale;}
+        if (inputMouse.onScreen.y < 0) {inputMouse.inGame.y = Double.NEGATIVE_INFINITY;}
+        else if (inputMouse.onScreen.y > getHeight()*scale) {inputMouse.inGame.y = Double.POSITIVE_INFINITY;}
+        else {inputMouse.inGame.y = (int)(camera.position.y + inputMouse.onScreen.y)*scale;}
+
+        //updates the inputMouse's hover over lists
+        inputMouse.objectKeys = new LinkedList[199];
+        for (int i = 0; i < inputMouse.objectKeys.length; i ++) {
+            inputMouse.objectKeys[i] = new LinkedList<String>();
+        }
+        for (String key : instance.keySet()) {
+            Object object = instance.get(key);
+
+            if (inputMouse.mask.collidesAt(inputMouse.inGame, object.getMask(), object.getAbsolutePosition())) {
+                inputMouse.objectKeys[object.getDepth()].add(key);
+            }
+        }
 
         //updates the list of the taken identifier keys
         for (String string : instance.keySet()) {
             if (!expandedKeys.contains(string)) expandedKeys.add(string);
         }
 
-        //This is how you check if a mouse button is held down
-        System.out.println(inputMouse.key(MouseEvent.BUTTON1));
-
         //updates the sprite states of every object
         for (int i = 0; i < instance.size(); i ++) {
-            Object thisInstance = instance.get(instance.keySet().toArray()[i]);
-            Sprite thisSprite = sprite.get(thisInstance.getSpriteIndex());
+            Object thisinstance = instance.get(instance.keySet().toArray()[i]);
+            Sprite thisSprite = sprite.get(thisinstance.getSpriteIndex());
             if (thisSprite != null) {
 
-                long numberOfFrames = (long)(thisSprite.imageTime*thisInstance.imageSpeed*((double)frameRate));
+                long numberOfFrames = (long)(thisSprite.imageTime*thisinstance.imageSpeed*((double)frameRate));
 
                 if (numberOfFrames > 0) {
-                    while (currentFrame >= thisInstance.previousUpdate+numberOfFrames) {
-                        thisInstance.imageIndex ++;
-                        if (thisInstance.imageIndex >= thisSprite.size()) thisInstance.imageIndex = 0;
-                        thisInstance.previousUpdate += numberOfFrames;
+                    while (currentFrame >= thisinstance.previousUpdate+numberOfFrames) {
+                        thisinstance.imageIndex ++;
+                        if (thisinstance.imageIndex >= thisSprite.size()) thisinstance.imageIndex = 0;
+                        thisinstance.previousUpdate += numberOfFrames;
                     }
                 }
             }
@@ -130,23 +146,22 @@ public class Game extends JPanel {
 
     }
 
-    //this is where you can call extra draw functions and it will all render on top of the game (it's better not to touch the real paintComponent); meant mainly for GUI as it draws on top of everything
-    public void draw(Graphics g) {
-
-        inventoryPanel.draw(this, g);
-
-    }
-
     //runs once on the first frame
     public void create(long currentFrame) {
 
         try {resource("resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
 
-        //example code for creating an Instance
+        //example code for creating an instance, attaching an entity and parenting another instance
         String key = generateIdentifier();
-        instance.put(key, new Object(new Point(100, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
-
+        instance.put(key, new Object(Object.BASE, new Point(100, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+        
         player = instance.get(key);
+        player.entity = new Player();
+
+        key = generateIdentifier();
+        instance.put(key, new Object(Object.HUD, new Point(200, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+        player.addToCollection(key);
+        
     }
 
 
@@ -158,11 +173,8 @@ public class Game extends JPanel {
 
         double downScale = (1.0*windowScale/40);
 
-        //categorizes each object into their respective depth level; -99 to 99
-        LinkedList<String> depthOrder[] = new LinkedList[199];
-        for (int i = 0; i < depthOrder.length; i ++) {
-            depthOrder[i] = new LinkedList<String>();
-        }
+        //categorizes each object into their respective layer and depth level; -99 to 99
+        HashMap<Integer, HashMap<Integer, LinkedList<String>>> layerOrder = new HashMap<>(); 
 
         String instanceKeyset[] = instance.keySet().toString().split(", ");
 
@@ -171,16 +183,16 @@ public class Game extends JPanel {
         for (int i = 0; i < instance.size(); i ++) {
 
             Object ins = instance.get(instanceKeyset[i]);
-            if (ins != null && ins.visible && sprite.containsKey(ins.getSpriteIndex())) {
+            if (ins != null && ins.getAbsoluteVisibility() && sprite.containsKey(ins.getSpriteIndex())) {
 
                 Sprite spr = sprite.get(ins.getSpriteIndex());
                 Image img = spr.getImage(ins.imageIndex);
                 double realWidth = img.getWidth(null) * ins.imageXScale * downScale;
                 double realHeight = img.getHeight(null) * ins.imageYScale * downScale;
                 Point realOrigin = new Point((int)(spr.origin.x * ins.imageXScale * downScale), (int)(spr.origin.y * ins.imageYScale * downScale));
-                double realRightBound = realWidth - realOrigin.x - realOrigin.x + ins.position.x;
+                double realRightBound = realWidth - realOrigin.x - realOrigin.x + ins.getAbsolutePosition().x;
                 double realLeftBound = realWidth - realRightBound;
-                double realBottomBound = realHeight - realOrigin.y - realOrigin.y + ins.position.y;
+                double realBottomBound = realHeight - realOrigin.y - realOrigin.y + ins.getAbsolutePosition().y;
                 double realTopBound = realHeight - realBottomBound; 
 
                 if (
@@ -199,7 +211,18 @@ public class Game extends JPanel {
                         ||
                         (realTopBound <= camera.topBound() && camera.bottomBound() >= realBottomBound)
                     )
-                ) {depthOrder[instance.get(instanceKeyset[i]).getDepth()+99].add(instanceKeyset[i]);}
+                ) {
+
+                    if (layerOrder.containsKey(ins.layer)) {
+                        layerOrder.get(ins.layer).get(ins.getDepth()).add(instanceKeyset[i]);
+                    }
+                    else {
+                        layerOrder.put(ins.layer, new HashMap<Integer, LinkedList<String>>());
+                        layerOrder.get(ins.layer).put(ins.getDepth(), new LinkedList<String>());
+                        layerOrder.get(ins.layer).get(ins.getDepth()).add(instanceKeyset[i]);
+                    }
+
+                }
 
             }
         }
@@ -207,28 +230,30 @@ public class Game extends JPanel {
         g.setColor(Color.WHITE);
 
         //draws every instance or every collision box
-        for (int i = 198; i >= 0; i --) {
-            LinkedList<String> depthLevel = depthOrder[i];
+        for (int layer : layerOrder.keySet()) {
+            for (int i : layerOrder.get(layer).keySet()) {
+                if (layerOrder.get(i) != null) {
+                    LinkedList<String> depthLevel = layerOrder.get(layer).get(i);
 
-            for (int j = 0; j < depthLevel.size(); j ++) {
-                //calls the image we are about to draw
-                Object currentInstance = instance.get(depthLevel.get(j));
-                Sprite currentSprite = sprite.get(currentInstance.getSpriteIndex());
-                Image imageToDraw = currentSprite.getImage(currentInstance.imageIndex);
+                    for (int j = 0; j < depthLevel.size(); j ++) {
+                        //calls the image we are about to draw
+                        Object currentinstance = instance.get(depthLevel.get(j));
+                        Sprite currentSprite = sprite.get(currentinstance.getSpriteIndex());
+                        Image imageToDraw = currentSprite.getImage(currentinstance.imageIndex);
 
-                Integer scaledWidth = (int)(Math.round(imageToDraw.getWidth(null) * currentInstance.imageXScale * downScale));
-                Integer scaledHeight = (int)(Math.round(imageToDraw.getHeight(null) * currentInstance.imageYScale * downScale));
-                Point realOrigin = new Point((int)(currentSprite.origin.x * currentInstance.imageXScale * downScale), (int)(currentSprite.origin.y * currentInstance.imageYScale * downScale));
+                        Integer scaledWidth = (int)(Math.round(imageToDraw.getWidth(null) * currentinstance.imageXScale * downScale));
+                        Integer scaledHeight = (int)(Math.round(imageToDraw.getHeight(null) * currentinstance.imageYScale * downScale));
+                        Point realOrigin = new Point((int)(currentSprite.origin.x * currentinstance.imageXScale * downScale), (int)(currentSprite.origin.y * currentinstance.imageYScale * downScale));
 
-                if (scaledHeight != 0 && scaledWidth != 0) {
-                    imageToDraw = imageToDraw.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_FAST);
-                    g.drawImage(imageToDraw, (int)Math.round((currentInstance.position.x - camera.position.x) * downScale - realOrigin.x), (int)Math.round((currentInstance.position.y - camera.position.y) * downScale - realOrigin.y), imageToDraw.getWidth(null), imageToDraw.getHeight(null), null);
+                        if (scaledHeight != 0 && scaledWidth != 0) {
+                            imageToDraw = imageToDraw.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_FAST);
+                            g.drawImage(imageToDraw, (int)Math.round((currentinstance.getAbsolutePosition().x - camera.position.x) * downScale - realOrigin.x), (int)Math.round((currentinstance.getAbsolutePosition().y - camera.position.y) * downScale - realOrigin.y), imageToDraw.getWidth(null), imageToDraw.getHeight(null), null);
+                        }
+
+                    }
                 }
-
             }
         }
-
-        draw(g);
 
     }
 
@@ -319,9 +344,11 @@ public class Game extends JPanel {
             Object object = instance.get(key);
 
             if (object.entity != null) {
-                object.entity.act(this);
+                object.entity.act(this, object);
             }
         }
+
+        camera.act(this);
     }
     public static int getWindowScale(){
         return windowScale;

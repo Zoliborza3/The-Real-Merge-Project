@@ -1,18 +1,26 @@
 package Utilities.Collision;
 
 import Utilities.Point;
-import Utilities.Vector;
 
-public class Collision {
+public class Dot extends Collision {
 
     private double longestDiagonal;
+
+    public Dot() {
+        longestDiagonal = 0;
+    }
     
     public boolean collidesAt(Point thisOrigin, Collision other, Point otherOrigin) {
-        return false;
+        if (other instanceof Dot) {
+            return thisOrigin.equals(otherOrigin);
+        }
+        else {
+            return other.collidesAt(otherOrigin, this, thisOrigin);
+        }
     }
 
     public boolean containsPoint(Point thisOrigin, Point otherOrigin) {
-        return false;
+        return (thisOrigin.equals(otherOrigin));
     }
 
     public String toString() {
@@ -20,7 +28,7 @@ public class Collision {
     }
 
     public Collision resize(double x, double y) {
-        return null;
+        return this;
     }
 
     public Collision copy() {

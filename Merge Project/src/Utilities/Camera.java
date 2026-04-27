@@ -29,4 +29,10 @@ public class Camera {
         return position.y;
     }
 
+    public void act(Game game) {
+        if (game.instance.containsKey(anchorKey)) {
+            position = game.instance.get(anchorKey).getAbsolutePosition().applyVector(new Vector(-width/2, -height/2));
+        }
+    }
+
 }

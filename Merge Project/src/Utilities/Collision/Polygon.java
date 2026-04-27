@@ -40,7 +40,6 @@ public class Polygon extends Collision {
     }
 
     public boolean collidesAt(Point thisOrigin, Collision other, Point otherOrigin) {
-        System.out.println("a");
         if (other instanceof Polygon) {
             
             // Check if circle center is inside polygon
@@ -74,6 +73,9 @@ public class Polygon extends Collision {
 
         }
         else if (other instanceof Circle) {other.collidesAt(otherOrigin, this, thisOrigin);}
+        else if (other instanceof Dot) {
+            return containsPoint(thisOrigin, otherOrigin);
+        }
         return false;
     }
 
@@ -83,6 +85,21 @@ public class Polygon extends Collision {
 
     public String toString() {
         return Arrays.toString(points);
+    }
+
+    public boolean containsPoint(Point thisOrigin, Point otherOrigin) {
+        Polygon thisPolygonMask = (Polygon)this;
+        Point thisPoints[] = thisPolygonMask.getPoints();
+        int[] thisXPoints = new int[thisPoints.length];
+        int[] thisYPoints = new int[thisPoints.length];
+        for (int i = 0; i < points.length; i++) {
+            thisXPoints[i] = thisPoints[i].getX();
+            thisYPoints[i] = thisPoints[i].getY();
+        }
+        java.awt.Polygon thisPolygon = new java.awt.Polygon(thisXPoints, thisYPoints, points.length);
+        if (thisPolygon.contains(otherOrigin.x-thisOrigin.x, otherOrigin.y-thisOrigin.y)) return true;
+
+        return false;
     }
 
 }

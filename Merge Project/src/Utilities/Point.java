@@ -32,4 +32,12 @@ public class Point {
     public String toString() {
         return "["+x+", "+y+"]";
     }
+
+    public Point applyVector(Vector vector) {
+        return new Point(x+vector.x, y+vector.y);
+    }
+
+    public boolean equals(Point other) {
+        return (this.x == other.x && this.y == other.y);
+    }
 }

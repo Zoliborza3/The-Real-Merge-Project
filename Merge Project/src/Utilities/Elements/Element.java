@@ -1,8 +1,8 @@
-package Utilities.Inventory;
+package Utilities.Elements;
 
 public class Element {
-    int id;
-    double amount;
+    public int id;
+    public double amount;
 
     public Element(int id, double amount) {
         this.id = id;

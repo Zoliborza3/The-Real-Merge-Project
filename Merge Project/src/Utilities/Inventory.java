@@ -1,6 +1,8 @@
-package Utilities.Inventory;
+package Utilities;
 
 import java.util.LinkedList;
+
+import Utilities.Elements.Element;
 
 public class Inventory {
     public LinkedList<Element> elements =new LinkedList<>();

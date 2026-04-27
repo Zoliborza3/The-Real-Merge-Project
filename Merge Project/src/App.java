@@ -1,8 +1,8 @@
 import javax.swing.*;
 
 import Utilities.Game;
-import Utilities.Inventory.Inventory;
-import Utilities.Inventory.InventoryPanel;
+import Utilities.Inventory;
+import Utilities.Entities.InventoryPanel;
 
 import java.awt.*;
 
@@ -17,6 +17,7 @@ public class App {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(Color.BLACK);
+        frame.setUndecorated(false);
 
         Game game = new Game(frameRate);
 
@@ -31,7 +32,7 @@ public class App {
 
         while (true) {
             while (frameStart + frameLength < System.nanoTime()) {
-                game.run(frameCounter, frame.getX(), frame.getY());
+                game.run(frameCounter, frame.getX(), frame.getY(), frame.isUndecorated());
                 frameStart += frameLength;
                 frameCounter ++;
             }

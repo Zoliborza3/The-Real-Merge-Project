@@ -56,6 +56,18 @@ public class Circle extends Collision {
             
             return false;
         }
+        else if (other instanceof Dot) {
+            return containsPoint(thisOrigin, otherOrigin);
+        }
+        return false;
+    }
+
+    public double getLongestDiagonal() {
+        return radius;
+    }
+
+    public boolean containsPoint(Point thisOrigin, Point otherOrigin) {
+        if (thisOrigin.distanceTo(otherOrigin) <= this.getLongestDiagonal()) return true;
         return false;
     }
 
