@@ -139,7 +139,7 @@ public class Object {
             if (other != this && other.layer == this.layer) {
                 Collision otherMask = other.getMask();
 
-                if (otherMask != null && other.solid && trueMask.collidesAt(thisPosition, otherMask, other.position)) return true;
+                if (otherMask != null && other.getAbsoluteSolidity() && trueMask.collidesAt(thisPosition, otherMask, other.position)) return true;
             }
         }
         return false;
@@ -157,7 +157,7 @@ public class Object {
             if (other != this && other.layer == this.layer) {
                 Collision otherMask = other.getMask();
 
-                if (otherMask != null && other.solid && trueMask.collidesAt(thisPosition, otherMask, other.position)) objects.add(other);
+                if (otherMask != null && other.getAbsoluteSolidity() && trueMask.collidesAt(thisPosition, otherMask, other.position)) objects.add(other);
             }
         }
         return objects;
@@ -223,8 +223,8 @@ public class Object {
         this.visible = visible;
     }
 
-    public void setRelativeSolidity(boolean visible) {
-        this.visible = visible;
+    public void setRelativeSolidity(boolean solid) {
+        this.solid = solid;
     }
 
     public void setAbsoluteVisibility(boolean visible) {
