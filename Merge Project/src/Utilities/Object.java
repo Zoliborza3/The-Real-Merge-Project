@@ -128,7 +128,7 @@ public class Object {
     }
 
     public boolean solidCollidesWithAt(Point thisPosition, Object other, Point otherPosition) {
-        if (!other.solid) return false;
+        if (!other.getAbsoluteSolidity()) return false;
         return collidesWithAt(thisPosition, other, otherPosition);
     }
 
