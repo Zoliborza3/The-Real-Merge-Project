@@ -39,6 +39,8 @@ public class Game extends JPanel {
     //contains all the loaded sprites
     public static HashMap<String, Sprite> sprite = new HashMap<>();
 
+    public static HashMap<String, BufferedImage> image = new HashMap<>();
+
     //Just the camera object
     public static Camera camera = new Camera(new Point(0, 0), 2560, 1440, "");
 
@@ -157,7 +159,7 @@ public class Game extends JPanel {
         if (!inputHandler.key(KeyEvent.VK_SPACE) && impulseHandler.key(KeyEvent.VK_SPACE)) {System.out.println("release");}
 
 
-        
+        System.out.println(image.keySet());
 
     }
 
@@ -369,6 +371,26 @@ public class Game extends JPanel {
 
             }
 
+        } catch (FileNotFoundException e) {
+            System.err.println(e);
+        } catch (IOException e) {
+            System.err.println(e);
+        } catch (Exception e) {
+            System.err.println("Undefined problem while trying to read assets: "+e);
+        }
+
+        try {
+            File sourceFolder = new File(rootDirectory+"/images");
+            if (!sourceFolder.exists() || !sourceFolder.canRead()) throw new FileNotFoundException("The directory doesn't exits or cannot be read: "+sourceFolder);
+            
+            String assets[] = sourceFolder.list();
+            for (String assetName : assets) {
+                File file = new File(sourceFolder+"/"+assetName);
+                if (!sourceFolder.canRead()) throw new FileNotFoundException("The file cannot be read: "+file);
+
+                try {image.put(assetName.replace(".png", ""), ImageIO.read(file));}
+                catch (IOException e) {throw new IOException(e+": "+file);}
+            }
         } catch (FileNotFoundException e) {
             System.err.println(e);
         } catch (IOException e) {
