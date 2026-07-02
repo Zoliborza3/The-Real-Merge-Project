@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
 
+
 public class InventoryPanel extends Entity {
 
     public Inventory inventory;

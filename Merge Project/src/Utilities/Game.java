@@ -156,6 +156,9 @@ public class Game extends JPanel {
         //release
         if (!inputHandler.key(KeyEvent.VK_SPACE) && impulseHandler.key(KeyEvent.VK_SPACE)) {System.out.println("release");}
 
+
+        
+
     }
 
     //runs once on the first frame
@@ -174,8 +177,30 @@ public class Game extends JPanel {
 
         //this how you make another instance and add it to the collection of the first one
         key = generateIdentifier();
-        instance.put(key, new Object(Object.HUD, new Point(200, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+        instance.put(key, new Object(-10, new Point(200, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
         player.addToCollection(key);
+
+        BufferedImage img = new BufferedImage((int)camera.width, (int)camera.height, BufferedImage.BITMASK);
+
+        Graphics g = img.getGraphics();
+
+        g.setColor(Color.GRAY);
+        g.fillRect(0, 0, img.getWidth(), img.getHeight());
+
+        g.setColor(Color.WHITE);
+        for (int i = 0; i < 10; i ++) {
+            g.fillRect(100, i*(int)((double)img.getHeight()*0.075), 900, i*(int)((double)img.getHeight()*0.05));
+        }
+
+        g.dispose();
+
+        Sprite toAdd = new Sprite(new BufferedImage[] {img}, new Circle(100), new Point(10, 10));
+
+        sprite.put("sprMenuComplete", toAdd);
+
+        //thomas
+        key = generateIdentifier();
+        instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
         
     }
 
@@ -185,6 +210,7 @@ public class Game extends JPanel {
 
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
+
 
         double downScale = (1.0*windowScale/40);
 

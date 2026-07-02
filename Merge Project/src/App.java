@@ -1,7 +1,6 @@
 import javax.swing.*;
 
 import Utilities.Game;
-import Utilities.Inventory;
 import Utilities.Entities.InventoryPanel;
 
 import java.awt.*;
@@ -11,7 +10,7 @@ public class App {
         //Not a lot to explain here
         JFrame frame = new JFrame("Merge Project");
         double frameStart = System.nanoTime();
-        double frameRate = 120;
+        double frameRate = 60;
         double frameLength = 1000000000/frameRate;
         long frameCounter = 0;
 
