@@ -12,7 +12,7 @@ public class Object {
     //!!IMPORTANT!! sets what layer it is rendered to; Objects can only collide normally with objects on the same layer;
     public int layer;
     //some pre-defined layer ids
-    public static final int BASE = 0, HUD = -1;
+    public static final int BASE = 0, HUD = -10;
 
     //Ingame position of the Object; relative value
     private Point position;

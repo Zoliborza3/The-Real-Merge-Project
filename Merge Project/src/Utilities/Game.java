@@ -143,10 +143,10 @@ public class Game extends JPanel {
 
         act();
 
-
         Element e = new Element(1,1);
         Element e2 = new Element(2,1);
-        if (inputHandler.key(KeyEvent.VK_I) && !impulseHandler.key(KeyEvent.VK_I)) {System.out.println(inventoryPanel.inventory.toString());}
+
+        if (inputHandler.key(KeyEvent.VK_I) && !impulseHandler.key(KeyEvent.VK_I)) {inventoryPanel.drawTabInventory(this,currentFrame);}
         if (inputHandler.key(KeyEvent.VK_E) && !impulseHandler.key(KeyEvent.VK_E)) {inventoryPanel.inventory.addElement(e);}
         if (inputHandler.key(KeyEvent.VK_Q) && !impulseHandler.key(KeyEvent.VK_Q)) {inventoryPanel.inventory.addElement(e2);}
 
@@ -159,7 +159,7 @@ public class Game extends JPanel {
         if (!inputHandler.key(KeyEvent.VK_SPACE) && impulseHandler.key(KeyEvent.VK_SPACE)) {System.out.println("release");}
 
 
-        System.out.println(image.keySet());
+        //System.out.println(image.keySet());
 
     }
 
@@ -171,7 +171,7 @@ public class Game extends JPanel {
         //example code for creating an instance, attaching an entity and parenting another instance
         //this how you create an instance
         String key = generateIdentifier();
-        instance.put(key, new Object(Object.BASE, new Point(100, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+        instance.put(key, new Object(0, new Point(100, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
         
         //this how you can save to a variable and add an entity to them
         player = instance.get(key);
@@ -201,9 +201,9 @@ public class Game extends JPanel {
         sprite.put("sprMenuComplete", toAdd);
 
         //thomas
-        key = generateIdentifier();
-        instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
-        
+        //key = "Thomas";
+        //instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
+        inventoryPanel.draw(this,currentFrame);
     }
 
 
