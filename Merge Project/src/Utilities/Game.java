@@ -244,7 +244,7 @@ public class Game extends JPanel {
 
         double downScale = (1.0*windowScale/40);
 
-        //categorizes each object into their respective layer and depth level; -99 to 99
+        //categorizes each object into their respective layer and depth level;
         HashMap<Integer, HashMap<Integer, LinkedList<String>>> layerOrder = new HashMap<>(); 
 
         String instanceKeyset[] = instance.keySet().toString().split(", ");
@@ -267,20 +267,24 @@ public class Game extends JPanel {
                 double realTopBound = realHeight - realBottomBound; 
 
                 if (
+                    (true)
+                    ||
                     (
-                        (realRightBound <= camera.rightBound() && camera.leftBound() <= realRightBound)
-                        ||
-                        (realLeftBound <= camera.rightBound() && camera.leftBound() <= realLeftBound)
-                        ||
-                        (realLeftBound <= camera.leftBound() && realRightBound >= camera.rightBound())
-                    ) 
-                    &
-                    (
-                        (realBottomBound <= camera.bottomBound() && camera.topBound() <= realBottomBound)
-                        ||
-                        (realTopBound <= camera.bottomBound() && camera.topBound() <= realTopBound)
-                        ||
-                        (realTopBound <= camera.topBound() && camera.bottomBound() >= realBottomBound)
+                        (
+                            (realRightBound <= camera.rightBound() && camera.leftBound() <= realRightBound)
+                            ||
+                            (realLeftBound <= camera.rightBound() && camera.leftBound() <= realLeftBound)
+                            ||
+                            (realLeftBound <= camera.leftBound() && realRightBound >= camera.rightBound())
+                        ) 
+                        &
+                        (
+                            (realBottomBound <= camera.bottomBound() && camera.topBound() <= realBottomBound)
+                            ||
+                            (realTopBound <= camera.bottomBound() && camera.topBound() <= realTopBound)
+                            ||
+                            (realTopBound <= camera.topBound() && camera.bottomBound() >= realBottomBound)
+                        )
                     )
                 ) {
 
