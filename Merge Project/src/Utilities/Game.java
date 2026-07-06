@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,6 +66,7 @@ public class Game extends JPanel {
         setFocusable(true);
         addKeyListener(inputHandler);
         addMouseListener(inputMouse);
+        addMouseWheelListener(inputMouse);
 
         this.frameRate = frameRate;
     }
@@ -138,6 +140,8 @@ public class Game extends JPanel {
         impulseMouse = inputMouse.copy();
     }
 
+
+
     //this is where the real game stuff should go; feel free to break it up more if you all prefer to; I would advise against writing extensive amounts of codes here, rather both of you should make Entities for that
     public void step(long currentFrame) {
 
@@ -160,13 +164,18 @@ public class Game extends JPanel {
 
 
         //System.out.println(image.keySet());
+        
+        //resets the mouse wheel's counter
+        MouseHandler.rotation = 0;
 
     }
+
+
 
     //runs once on the first frame
     public void create(long currentFrame) {
 
-        try {resource("resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
+        try {resource("Merge Project\\resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
 
         //example code for creating an instance, attaching an entity and parenting another instance
         //this how you create an instance
@@ -205,6 +214,25 @@ public class Game extends JPanel {
         //instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
         inventoryPanel.draw(this,currentFrame);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -18,6 +18,10 @@ public class Player extends Entity {
 
         if (move.length() > 0) object.setRelativePosition(object.getRelativePosition().applyVector(move));
 
+
+        //how to use the wheel rotation
+        object.setRelativePosition(object.getRelativePosition().applyVector(new Vector(0, MouseHandler.rotation*5)));
+
     }
 
 }

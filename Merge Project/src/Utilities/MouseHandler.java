@@ -2,18 +2,22 @@ package Utilities;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import Utilities.Collision.Dot;
 
-public class MouseHandler implements MouseListener {
+public class MouseHandler implements MouseListener, MouseWheelListener {
 
     //onscreen is the mouse's position relative to the upperleft corner of the game window; ingame is the ingame coordinates of where the mouse falls
     Point onScreen = new Point(0, 0), inGame = new Point(0, 0);
     //list of keys of the objects that the mouse is hovered over sorted by layer and depth
     HashMap<Integer, HashMap<Integer, LinkedList<String>>> hoverOver = new HashMap<>();
+
+    public static double rotation = 0;
 
     //Collision box of the mousePointer
     Dot mask = new Dot();
@@ -68,6 +72,11 @@ public class MouseHandler implements MouseListener {
         copy.onScreen = this.onScreen;
         copy.inGame = this.inGame;
         return copy;
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        rotation += e.getPreciseWheelRotation();
     }
 
 }
