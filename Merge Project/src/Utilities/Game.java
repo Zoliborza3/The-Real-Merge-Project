@@ -148,14 +148,14 @@ public class Game extends JPanel {
 
         act();
 
-        /*
+        
         Element e = new Element(1,1);
         Element e2 = new Element(2,1);
 
         if (inputHandler.key(KeyEvent.VK_I) && !impulseHandler.key(KeyEvent.VK_I)) {inventoryPanel.drawTabInventory(this,currentFrame);}
         if (inputHandler.key(KeyEvent.VK_E) && !impulseHandler.key(KeyEvent.VK_E)) {inventoryPanel.inventory.addElement(e);}
         if (inputHandler.key(KeyEvent.VK_Q) && !impulseHandler.key(KeyEvent.VK_Q)) {inventoryPanel.inventory.addElement(e2);}
-        */
+        
 
         //example code for checking inputs
         //press
@@ -213,9 +213,9 @@ public class Game extends JPanel {
         sprite.put("sprMenuComplete", toAdd);
 
         //thomas
-        //key = "Thomas";
-        //instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
-        //inventoryPanel.draw(this,currentFrame);
+        key = "Thomas";
+        instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
+        inventoryPanel.draw(this,currentFrame);
     }
 
 
