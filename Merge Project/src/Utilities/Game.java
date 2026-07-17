@@ -16,7 +16,6 @@ import java.util.Random;
 import java.util.Scanner;
 
 import Utilities.Collision.*;
-import Utilities.Elements.Element;
 import Utilities.Entities.InventoryPanel;
 import Utilities.Entities.Player;
 
@@ -27,8 +26,8 @@ public class Game extends JPanel {
 
     //defines the base layers
 
-    //use this variable to set the size of window
-    static int windowScale = 20;
+    //sets how many times bigger the window will be than the view of the camera (see camera.width / camera.height)
+    static double windowScale = 0.5;
     public double frameRate;
 
     //contains all the instances in the game
@@ -62,7 +61,7 @@ public class Game extends JPanel {
     InventoryPanel inventoryPanel = new InventoryPanel();
 
     public Game(double frameRate) {
-        setPreferredSize(new Dimension(64*windowScale, 36*windowScale));
+        setPreferredSize(new Dimension((int)(camera.width*windowScale), (int)(camera.height*windowScale)));
         setFocusable(true);
         addKeyListener(inputHandler);
         addMouseListener(inputMouse);
@@ -73,7 +72,7 @@ public class Game extends JPanel {
 
     public void run(long currentFrame, int windowX, int windowY, boolean borderless) {
         //updates mouse position
-        double scale = 40/windowScale;
+        double scale = 1/windowScale;
         inputMouse.onScreen.x = (int)(MouseInfo.getPointerInfo().getLocation().x-windowX)-8;
         if (borderless) {inputMouse.onScreen.y =  (int)(MouseInfo.getPointerInfo().getLocation().y-windowY);}
         else {inputMouse.onScreen.y =  (int)(MouseInfo.getPointerInfo().getLocation().y-windowY)-32;}
@@ -136,6 +135,8 @@ public class Game extends JPanel {
 
         repaint();
 
+        System.out.println("["+inputMouse.onScreen.x+", "+inputMouse.onScreen.y+"]; ["+inputMouse.inGame.x+", "+inputMouse.inGame.y+"]");
+
         impulseHandler = inputHandler.copy();
         impulseMouse = inputMouse.copy();
     }
@@ -147,12 +148,14 @@ public class Game extends JPanel {
 
         act();
 
+        
         Element e = new Element(1,1);
         Element e2 = new Element(2,1);
 
         if (inputHandler.key(KeyEvent.VK_I) && !impulseHandler.key(KeyEvent.VK_I)) {inventoryPanel.drawTabInventory(this,currentFrame);}
         if (inputHandler.key(KeyEvent.VK_E) && !impulseHandler.key(KeyEvent.VK_E)) {inventoryPanel.inventory.addElement(e);}
         if (inputHandler.key(KeyEvent.VK_Q) && !impulseHandler.key(KeyEvent.VK_Q)) {inventoryPanel.inventory.addElement(e2);}
+        
 
         //example code for checking inputs
         //press
@@ -188,7 +191,7 @@ public class Game extends JPanel {
 
         //this how you make another instance and add it to the collection of the first one
         key = generateIdentifier();
-        instance.put(key, new Object(-10, new Point(200, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
+        instance.put(key, new Object(-10, new Point(2400, 100), "sprTest", sprite.get("sprTest").getMask(), key, currentFrame));
         player.addToCollection(key);
 
         BufferedImage img = new BufferedImage((int)camera.width, (int)camera.height, BufferedImage.BITMASK);
@@ -210,8 +213,8 @@ public class Game extends JPanel {
         sprite.put("sprMenuComplete", toAdd);
 
         //thomas
-        //key = "Thomas";
-        //instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
+        key = "Thomas";
+        instance.put(key, new Object(Object.HUD, new Point(0, 0), "sprMenuComplete", sprite.get("sprMenuComplete").getMask(), key, currentFrame));
         inventoryPanel.draw(this,currentFrame);
     }
 
@@ -242,7 +245,7 @@ public class Game extends JPanel {
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
 
-        double downScale = (1.0*windowScale/40);
+        double downScale = (double)(windowScale);
 
         //categorizes each object into their respective layer and depth level;
         HashMap<Integer, HashMap<Integer, LinkedList<String>>> layerOrder = new HashMap<>(); 
@@ -255,7 +258,7 @@ public class Game extends JPanel {
 
             Object ins = instance.get(instanceKeyset[i]);
             if (ins != null && ins.getAbsoluteVisibility() && sprite.containsKey(ins.getSpriteIndex())) {
-
+                /*
                 Sprite spr = sprite.get(ins.getSpriteIndex());
                 Image img = spr.getImage(ins.imageIndex);
                 double realWidth = img.getWidth(null) * ins.imageXScale * downScale;
@@ -286,7 +289,7 @@ public class Game extends JPanel {
                             (realTopBound <= camera.topBound() && camera.bottomBound() >= realBottomBound)
                         )
                     )
-                ) {
+                ) */{
 
                     if (layerOrder.containsKey(ins.layer)) {
                         layerOrder.get(ins.layer).get(ins.getAbsoluteDepth()).add(instanceKeyset[i]);
@@ -445,7 +448,7 @@ public class Game extends JPanel {
 
         camera.act(this);
     }
-    public static int getWindowScale(){
+    public static double getWindowScale(){
         return windowScale;
     }
 
