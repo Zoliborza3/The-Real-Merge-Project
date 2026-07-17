@@ -135,6 +135,8 @@ public class Game extends JPanel {
 
         repaint();
 
+        System.out.println("["+inputMouse.onScreen.x+", "+inputMouse.onScreen.y+"]; ["+inputMouse.inGame.x+", "+inputMouse.inGame.y+"]");
+
         impulseHandler = inputHandler.copy();
         impulseMouse = inputMouse.copy();
     }
@@ -176,7 +178,7 @@ public class Game extends JPanel {
     //runs once on the first frame
     public void create(long currentFrame) {
 
-        try {resource("resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
+        try {resource("Merge Project\\resources");} catch (Exception e) {System.err.println("Resource reading Exception: "+e);}
 
         //example code for creating an instance, attaching an entity and parenting another instance
         //this how you create an instance
